@@ -1,0 +1,63 @@
+import pandas as pd
+df = pd.read_csv("retail_sales_dataset.csv")
+print(df.head())
+print(df.shape)
+print(df.columns)
+print(df.info())
+print("Duplicate rows:", df.duplicated().sum())
+print(df.describe())
+category_sales = df.groupby("Product Category")["Total Amount"].sum().sort_values(ascending=False)
+print(category_sales)
+import matplotlib.pyplot as plt
+category_sales.plot(kind="bar")
+plt.title("Revenue by Product Category")
+plt.xlabel("Product Category")
+plt.ylabel("Total Revenue ($)")
+plt.tight_layout()
+plt.savefig("revenue_by_category.png", dpi=300)
+plt.show()
+
+df["Date"] = pd.to_datetime(df["Date"])
+df["Month"] = df["Date"].dt.to_period("M")
+monthly_sales = df.groupby("Month")["Total Amount"].sum()
+print(monthly_sales)
+monthly_sales.plot(kind="line", marker="o")
+plt.title("Monthly Revenue Trend")
+plt.xlabel("Month")
+plt.ylabel("Total Revenue ($)")
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.savefig("monthly_revenue_trend.png", dpi=300)
+plt.show()
+
+gender_sales = df.groupby("Gender")["Total Amount"].sum()
+print(gender_sales)
+df["Age Group"] = pd.cut(
+    df["Age"],
+    bins=[17, 25, 35, 45, 55, 65],
+    labels=["18-25", "26-35", "36-45", "46-55", "56-65"]
+)
+age_sales = df.groupby("Age Group", observed=False)["Total Amount"].sum()
+print(age_sales)
+
+age_sales.plot(kind="bar")
+plt.title("Revenue by Age Group")
+plt.xlabel("Age Group")
+plt.ylabel("Total Revenue ($)")
+plt.xticks(rotation=0)
+plt.tight_layout()
+plt.savefig("revenue_by_age_group.png", dpi=300)
+plt.show()
+
+age_category_sales = df.groupby(["Age Group", "Product Category"], observed=False)["Total Amount"].sum()
+print(age_category_sales)
+age_category_table = age_category_sales.unstack()
+age_category_table.plot(kind="bar")
+
+plt.title("Product Category Revenue by Age Group")
+plt.xlabel("Age Group")
+plt.ylabel("Total Revenue ($)")
+plt.xticks(rotation=0)
+plt.tight_layout()
+plt.savefig("product_category_by_age.png", dpi=300)
+plt.show()
